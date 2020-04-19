@@ -1,0 +1,178 @@
+#!/usr/bin/env python3
+
+import jinja2
+import os
+import markdown2
+import shutil
+
+MAIN_TEMPLATE = "main.jinja2"  # document template file name
+PAGE_TEMPLATE = "page.jinja2"
+ARCHIVE_TEMPLATE = "archiv.jinja2"
+SITE_NAME = "Klausel Hoffnung Liebe"
+ASSET_PATH = "assets"  # relative path of assets
+IMAGE_PATH = "images"
+POSTS_PATH = "posts"
+PAGES_PATH = "pages"
+OUTPUT_PATH = "output"
+
+
+# write text to file
+def write_file(filepath, text):
+    with open(filepath, "w") as text_file:
+        text_file.write(text)
+
+
+# copy file tree
+def copytree(src, dst, symlinks=False, ignore=None):
+    for item in os.listdir(src):
+        s = os.path.join(src, item)
+        d = os.path.join(dst, item)
+        if os.path.isdir(s):
+            shutil.copytree(s, d, symlinks, ignore)
+        else:
+            shutil.copy2(s, d)
+
+
+# delete contents of directory
+def clean_directory(path):
+    for root, dirs, files in os.walk(path):
+        for f in files:
+            os.unlink(os.path.join(root, f))
+        for d in dirs:
+            shutil.rmtree(os.path.join(root, d))
+
+
+# Returns a rendered template
+def parse_template(template_path, var):
+    with open(template_path, "r") as template_file:
+        doc = template_file.read()
+    template = jinja2.Environment(loader=jinja2.FileSystemLoader("templates/")).from_string(doc)
+    return template.render(var)
+
+
+# Returns list of all files in directory
+def list_files(directory):
+    files = [f for f in os.listdir(directory) if os.path.isfile(os.path.join(directory, f))]
+    return files
+
+
+# Parses post or page file to split metadata and text
+def parse_file(filepath):
+
+    # read text from file
+    with open(filepath, "r") as file:
+        raw = file.read()
+
+    # split into meta and text
+    first_divider = False
+    in_meta = True
+    meta = ""
+    text = ""
+    for line in raw.splitlines():
+        if line == "---":
+            if not first_divider:
+                first_divider = True
+            else:
+                in_meta = False
+        else:
+            if in_meta:
+                if meta:
+                    meta += "\n"
+                meta += line
+            else:
+                if text:
+                    text += "\n"
+                text += line
+
+    # process meta into array
+    article = {}
+    for line in meta.splitlines():
+        split = line.find(":")
+        if split != -1:
+            key = line[:split]
+            value = line[split+2:]
+            article[key] = value
+
+    # process text into markdown
+    md_text = markdown2.markdown(text)
+    article["text"] = md_text
+
+    # done
+    return article
+
+
+#
+# Main
+
+# Read all posts
+posts = []
+posts_files = list_files(POSTS_PATH)
+for post in posts_files:
+    info = parse_file((POSTS_PATH+"/"+post))
+    info["url"] = info["title"].lower().replace(" ", "-")
+    info["abstract"] = info["text"].splitlines()[0]  # create abstract
+    # TODO Add weiterlesen link
+    posts.append(info)
+
+
+# Read all pages
+pages = []
+pages_files = list_files(PAGES_PATH)
+for page in pages_files:
+    info = parse_file((PAGES_PATH+"/"+page))
+    info["date"] = ""
+    info["image"] = ""
+    info["url"] = info["title"].lower().replace(" ", "-")
+    pages.append(info)
+
+pages.append({"title": "Archiv", "order": "0", "url":"archiv", "date": "", "image":""})
+pages = sorted(pages, key=lambda i: i['order'])
+
+# Delete contents in output path
+clean_directory(OUTPUT_PATH)
+
+# Copy assets and images to output path
+os.mkdir(OUTPUT_PATH + "/assets")
+copytree(ASSET_PATH, OUTPUT_PATH + "/assets")
+os.mkdir(OUTPUT_PATH + "/images")
+copytree(IMAGE_PATH, OUTPUT_PATH + "/images")
+
+# Compose menu
+# TODO: Implement "exclude-from-menu" check
+menu = []
+for page in pages:
+    menu.append({"title": page["title"], "url": page["url"]})
+
+# Prepare var array
+variables = {
+    "title": SITE_NAME,
+    "menu": menu,
+    "articles": posts,
+    "asset_path": ASSET_PATH,
+    "image_path": IMAGE_PATH
+             }
+
+# Render index page
+index = parse_template("templates/" + MAIN_TEMPLATE, variables)
+write_file(OUTPUT_PATH + "/index.html", index)
+
+# Render archive page
+variables["title"] = SITE_NAME + " - Archiv"
+variables["articles"] = posts
+parsed = parse_template("templates/" + ARCHIVE_TEMPLATE, variables)
+write_file(OUTPUT_PATH + "/archiv.html", parsed)
+
+# Render all other pages
+for page in pages:
+    if page["title"] != "Archiv":
+        variables["title"] = SITE_NAME + " - " + page["title"]
+        variables["page"] = page
+        parsed = parse_template("templates/" + PAGE_TEMPLATE, variables)
+        write_file(OUTPUT_PATH + "/" + page["url"] + ".html", parsed)
+
+# Render post pages
+for post in posts:
+    variables["title"] = SITE_NAME + " - " + post["title"]
+    variables["page"] = post
+    parsed = parse_template("templates/" + PAGE_TEMPLATE, variables)
+    write_file(OUTPUT_PATH + "/" + post["url"] + ".html", parsed)
