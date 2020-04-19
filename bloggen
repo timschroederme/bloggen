@@ -132,6 +132,8 @@ pages = sorted(pages, key=lambda i: i['order'])
 clean_directory(OUTPUT_PATH)
 
 # Copy assets and images to output path
+if not os.path.isdir (OUTPUT_PATH):
+    os.mkdir(OUTPUT_PATH)
 os.mkdir(OUTPUT_PATH + "/assets")
 copytree(ASSET_PATH, OUTPUT_PATH + "/assets")
 os.mkdir(OUTPUT_PATH + "/images")
