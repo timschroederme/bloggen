@@ -101,6 +101,11 @@ def parse_file(filepath):
     return article
 
 
+# sanitize title strings for url
+def sanitize (url):
+    return url.lower().replace(" ", "-").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
+
+
 #
 # Main
 
@@ -109,7 +114,7 @@ posts = []
 posts_files = list_files(POSTS_PATH)
 for post in posts_files:
     info = parse_file((POSTS_PATH+"/"+post))
-    info["url"] = info["title"].lower().replace(" ", "-")
+    info["url"] = sanitize(info["title"])
     info["abstract"] = info["text"].splitlines()[0]  # create abstract
     # TODO Add weiterlesen link
     posts.append(info)
@@ -122,7 +127,7 @@ for page in pages_files:
     info = parse_file((PAGES_PATH+"/"+page))
     info["date"] = ""
     info["image"] = ""
-    info["url"] = info["title"].lower().replace(" ", "-")
+    info["url"] = sanitize(info["title"])
     pages.append(info)
 
 pages.append({"title": "Archiv", "order": "0", "url":"archiv", "date": "", "image":""})
