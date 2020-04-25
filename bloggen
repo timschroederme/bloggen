@@ -87,10 +87,9 @@ def parse_file(filepath):
                 text += line
 
     # process meta into array
-    article = {}
-    article["title"] = os.path.splitext(os.path.basename(filepath))[0]
-    article["date"] = datetime.date.today().strftime("%d.%m.%Y")
-    article["image"] = ""
+    article = {"title": os.path.splitext(os.path.basename(filepath))[0],
+               "date": datetime.date.today().strftime("%d.%m.%Y"),
+               "image": ""}
     if valid_meta:
         for line in meta.splitlines():
             split = line.find(":")
