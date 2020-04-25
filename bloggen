@@ -88,18 +88,16 @@ def parse_file(filepath):
 
     # process meta into array
     article = {}
+    article["title"] = os.path.splitext(os.path.basename(filepath))[0]
+    article["date"] = datetime.date.today().strftime("%d.%m.%Y")
+    article["image"] = ""
     if valid_meta:
         for line in meta.splitlines():
             split = line.find(":")
             if split != -1:
                 key = line[:split]
-                value = line[split+2:]
+                value = line[split+1:].strip()
                 article[key] = value
-    else:
-        print("Invalid Meta")
-        article["title"] = os.path.splitext(os.path.basename(filepath))[0]
-        article["date"] = datetime.date.today().strftime("%d.%m.%Y")
-        article["image"] = ""
 
     # process text into markdown
     md_text = markdown2.markdown(text)
