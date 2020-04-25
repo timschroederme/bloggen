@@ -101,11 +101,8 @@ def parse_file(filepath):
                "image": ""}
     if valid_meta:
         for line in meta.splitlines():
-            split = line.find(":")
-            if split != -1:
-                key = line[:split]
-                value = line[split+1:].strip()
-                article[key] = value
+            key, value = line.partition(":")[::2]
+            article[key.strip()] = value.strip()
 
     # process text into markdown
     md_text = markdown2.markdown(text)
