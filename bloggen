@@ -113,7 +113,7 @@ def parse_file(filepath):
 
 
 # sanitize title strings for url
-def sanitize (url):
+def sanitize(url):
     return url.lower().replace(" ", "-").replace("ä", "ae").replace("ö", "oe").replace("ü", "ue")
 
 
@@ -132,6 +132,7 @@ for post in posts_files:
     info["abstract"] = info["text"].splitlines()[0]  # create abstract
     # TODO Add weiterlesen link
     posts.append(info)
+    posts = sorted(posts, key=lambda i: i['date'], reverse=True)
 
 
 # Read all pages
@@ -144,14 +145,14 @@ for page in pages_files:
     info["url"] = sanitize(info["title"])
     pages.append(info)
 
-pages.append({"title": "Archiv", "order": "0", "url":"archiv", "date": "", "image":""})
+pages.append({"title": "Archiv", "order": "0", "url": "archiv", "date": "", "image": ""})
 pages = sorted(pages, key=lambda i: i['order'])
 
 # Delete contents in output path
 clean_directory(OUTPUT_PATH)
 
 # Copy assets and images to output path
-if not os.path.isdir (OUTPUT_PATH):
+if not os.path.isdir(OUTPUT_PATH):
     os.mkdir(OUTPUT_PATH)
 os.mkdir(OUTPUT_PATH + "/assets")
 copytree(ASSET_PATH, OUTPUT_PATH + "/assets")
