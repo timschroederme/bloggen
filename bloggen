@@ -9,12 +9,21 @@ import shutil
 MAIN_TEMPLATE = "main.jinja2"  # document template file name
 PAGE_TEMPLATE = "page.jinja2"
 ARCHIVE_TEMPLATE = "archiv.jinja2"
-SITE_NAME = "Klausel Hoffnung Liebe"
 ASSET_PATH = "assets"  # relative path of assets
 IMAGE_PATH = "images"
 POSTS_PATH = "posts"
 PAGES_PATH = "pages"
 OUTPUT_PATH = "output"
+
+
+# read site name from config file
+def read_site_config():
+    config = {}
+    with open(".site-config", "r") as text_file:
+        for line in text_file:
+            key, value = line.partition(":")[::2]
+            config[key.strip()] = value.strip()
+    return config
 
 
 # write text to file
@@ -114,6 +123,9 @@ def sanitize (url):
 #
 # Main
 
+# Read site config
+site_config = read_site_config()
+
 # Read all posts
 posts = []
 posts_files = list_files(POSTS_PATH)
@@ -157,7 +169,7 @@ for page in pages:
 
 # Prepare var array
 variables = {
-    "title": SITE_NAME,
+    "title": site_config["title"],
     "menu": menu,
     "articles": posts,
     "asset_path": ASSET_PATH,
@@ -169,7 +181,7 @@ index = parse_template("templates/" + MAIN_TEMPLATE, variables)
 write_file(OUTPUT_PATH + "/index.html", index)
 
 # Render archive page
-variables["title"] = SITE_NAME + " - Archiv"
+variables["title"] = site_config["title"] + " - Archiv"
 variables["articles"] = posts
 parsed = parse_template("templates/" + ARCHIVE_TEMPLATE, variables)
 write_file(OUTPUT_PATH + "/archiv.html", parsed)
@@ -177,14 +189,14 @@ write_file(OUTPUT_PATH + "/archiv.html", parsed)
 # Render all other pages
 for page in pages:
     if page["title"] != "Archiv":
-        variables["title"] = SITE_NAME + " - " + page["title"]
+        variables["title"] = site_config["title"] + " - " + page["title"]
         variables["page"] = page
         parsed = parse_template("templates/" + PAGE_TEMPLATE, variables)
         write_file(OUTPUT_PATH + "/" + page["url"] + ".html", parsed)
 
 # Render post pages
 for post in posts:
-    variables["title"] = SITE_NAME + " - " + post["title"]
+    variables["title"] = site_config["title"] + " - " + post["title"]
     variables["page"] = post
     parsed = parse_template("templates/" + PAGE_TEMPLATE, variables)
     write_file(OUTPUT_PATH + "/" + post["url"] + ".html", parsed)
