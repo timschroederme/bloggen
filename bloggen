@@ -140,8 +140,6 @@ pages = []
 pages_files = list_files(PAGES_PATH)
 for page in pages_files:
     info = parse_file((PAGES_PATH+"/"+page))
-    info["date"] = ""
-    info["image"] = ""
     info["url"] = sanitize(info["title"])
     pages.append(info)
 
