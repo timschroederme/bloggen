@@ -156,6 +156,8 @@ os.mkdir(OUTPUT_PATH + "/assets")
 copytree(ASSET_PATH, OUTPUT_PATH + "/assets")
 os.mkdir(OUTPUT_PATH + "/images")
 copytree(IMAGE_PATH, OUTPUT_PATH + "/images")
+if os.path.exists("favicon.ico"):
+    shutil.copyfile("favicon.ico", OUTPUT_PATH + "/favicon.ico")
 
 # Compose menu
 # TODO: Implement "exclude-from-menu" check
