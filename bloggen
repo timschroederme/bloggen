@@ -97,7 +97,7 @@ def parse_file(filepath):
 
     # process meta into array
     article = {"title": os.path.splitext(os.path.basename(filepath))[0],
-               "date": datetime.date.today().strftime("%d.%m.%Y"),
+               "date": "",
                "image": ""}
     if valid_meta:
         for line in meta.splitlines():
@@ -130,6 +130,8 @@ for post in posts_files:
     info = parse_file((POSTS_PATH+"/"+post))
     info["url"] = sanitize(info["title"])
     info["abstract"] = info["text"].splitlines()[0]  # create abstract
+    if not info["date"]:
+        info["date"] = datetime.date.today().strftime("%d.%m.%Y")
     # TODO Add weiterlesen link
     posts.append(info)
     posts = sorted(posts, key=lambda i: i['date'], reverse=True)
