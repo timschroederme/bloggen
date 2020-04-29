@@ -98,7 +98,9 @@ def parse_file(filepath):
     # process meta into array
     article = {"title": os.path.splitext(os.path.basename(filepath))[0],
                "date": "",
-               "image": ""}
+               "image": "",
+               "first-menu": "",
+               "second-menu": ""}
     if valid_meta:
         for line in meta.splitlines():
             key, value = line.partition(":")[::2]
@@ -145,7 +147,14 @@ for page in pages_files:
     info["url"] = sanitize(info["title"])
     pages.append(info)
 
-pages.append({"title": "Archiv", "order": "0", "url": "archiv", "date": "", "image": ""})
+pages.append({"title": "Archiv",
+              "order": "0",
+              "url": "archiv",
+              "date": "",
+              "image": "",
+              "first-menu": "",
+              "second-menu": "yes"
+              })
 pages = sorted(pages, key=lambda i: i['order'])
 
 # Delete contents in output path
@@ -163,14 +172,19 @@ if os.path.exists("favicon.ico"):
 
 # Compose menu
 # TODO: Implement "exclude-from-menu" check
-menu = []
+first_menu = []
+second_menu = []
 for page in pages:
-    menu.append({"title": page["title"], "url": page["url"]})
+    if page["first-menu"] == "yes":
+        first_menu.append({"title": page["title"], "url": page["url"]})
+    if page["second-menu"] == "yes":
+        second_menu.append({"title": page["title"], "url": page["url"]})
 
 # Prepare var array
 variables = {
     "title": site_config["title"],
-    "menu": menu,
+    "first_menu": first_menu,
+    "second_menu": second_menu,
     "articles": posts,
     "asset_path": ASSET_PATH,
     "image_path": IMAGE_PATH
