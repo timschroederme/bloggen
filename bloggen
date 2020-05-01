@@ -98,6 +98,7 @@ def parse_file(filepath):
     # process meta into array
     article = {"title": os.path.splitext(os.path.basename(filepath))[0],
                "date": "",
+               "type": "",
                "image": "",
                "first-menu": "",
                "second-menu": ""}
@@ -146,15 +147,6 @@ for page in pages_files:
     info = parse_file((PAGES_PATH+"/"+page))
     info["url"] = sanitize(info["title"])
     pages.append(info)
-
-pages.append({"title": "Archiv",
-              "order": "0",
-              "url": "archiv",
-              "date": "",
-              "image": "",
-              "first-menu": "",
-              "second-menu": "yes"
-              })
 pages = sorted(pages, key=lambda i: i['order'])
 
 # Delete contents in output path
@@ -194,19 +186,17 @@ variables = {
 index = parse_template("templates/" + MAIN_TEMPLATE, variables)
 write_file(OUTPUT_PATH + "/index.html", index)
 
-# Render archive page
-variables["title"] = site_config["title"] + " - Archiv"
-variables["articles"] = posts
-parsed = parse_template("templates/" + ARCHIVE_TEMPLATE, variables)
-write_file(OUTPUT_PATH + "/archiv.html", parsed)
-
 # Render all other pages
 for page in pages:
-    if page["title"] != "Archiv":
-        variables["title"] = site_config["title"] + " - " + page["title"]
-        variables["page"] = page
+    variables["title"] = site_config["title"] + " - " + page["title"]
+    variables["page"] = page
+    if page["type"] == "archive":
+        variables["articles"] = posts
+        parsed = parse_template("templates/" + ARCHIVE_TEMPLATE, variables)
+    else:
         parsed = parse_template("templates/" + PAGE_TEMPLATE, variables)
-        write_file(OUTPUT_PATH + "/" + page["url"] + ".html", parsed)
+    write_file(OUTPUT_PATH + "/" + page["url"] + ".html", parsed)
+
 
 # Render post pages
 for post in posts:
