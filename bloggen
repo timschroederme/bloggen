@@ -168,7 +168,6 @@ if os.path.exists("favicon.ico"):
     shutil.copyfile("favicon.ico", OUTPUT_PATH + "/favicon.ico")
 
 # Compose menu
-# TODO: Implement "exclude-from-menu" check
 first_menu = []
 second_menu = []
 for page in pages:
