@@ -9,6 +9,7 @@ import shutil
 MAIN_TEMPLATE = "main.jinja2"  # document template file name
 PAGE_TEMPLATE = "page.jinja2"
 ARCHIVE_TEMPLATE = "archiv.jinja2"
+TAGS_TEMPLATE = "tags.jinja2"
 ASSET_PATH = "assets"  # relative path of assets
 IMAGE_PATH = "images"
 POSTS_PATH = "posts"
@@ -107,8 +108,8 @@ def parse_file(filepath):
         for line in meta.splitlines():
             key, value = line.partition(":")[::2]
             if key.strip() == "tags":
-                for tag in value.strip().split(","):
-                    article[key.strip()].append({"title": tag.strip(), "url": sanitize(tag.strip())})
+                for t in value.strip().split(","):
+                    article[key.strip()].append({"title": t.strip(), "url": sanitize(t.strip())})
             else:
                 article[key.strip()] = value.strip()
 
@@ -189,6 +190,18 @@ variables = {
 # Render index page
 index = parse_template("templates/" + MAIN_TEMPLATE, variables)
 write_file(OUTPUT_PATH + "/index.html", index)
+
+# Render tag pages
+tags = []
+for post in posts:
+    if post["tags"]:
+        for tag in post["tags"]:
+            if not any(d['title'] == tag['title'] for d in tags):
+                tags.append(tag)
+for tag in tags:
+    variables["tag"] = tag
+    parsed = parse_template("templates/" + TAGS_TEMPLATE, variables)
+    write_file(OUTPUT_PATH + "/" + tag["url"] + ".html", parsed)
 
 # Render all other pages
 for page in pages:
