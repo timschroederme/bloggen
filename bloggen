@@ -108,7 +108,7 @@ def parse_file(filepath):
             key, value = line.partition(":")[::2]
             if key.strip() == "tags":
                 for tag in value.strip().split(","):
-                    article[key.strip()].append(tag.strip())
+                    article[key.strip()].append({"title": tag.strip(), "url": sanitize(tag.strip())})
             else:
                 article[key.strip()] = value.strip()
 
