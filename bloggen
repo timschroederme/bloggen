@@ -135,7 +135,6 @@ for post in posts_files:
     info["abstract"] = info["text"].splitlines()[0]  # create abstract
     if not info["date"]:
         info["date"] = datetime.date.today().strftime("%d.%m.%Y")
-    # TODO Add weiterlesen link
     posts.append(info)
     posts = sorted(posts, key=lambda i: i['date'], reverse=True)
 
