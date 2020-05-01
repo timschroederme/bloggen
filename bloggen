@@ -99,13 +99,18 @@ def parse_file(filepath):
     article = {"title": os.path.splitext(os.path.basename(filepath))[0],
                "date": "",
                "type": "",
+               "tags": [],
                "image": "",
                "first-menu": "",
                "second-menu": ""}
     if valid_meta:
         for line in meta.splitlines():
             key, value = line.partition(":")[::2]
-            article[key.strip()] = value.strip()
+            if key.strip() == "tags":
+                for tag in value.strip().split(","):
+                    article[key.strip()].append(tag.strip())
+            else:
+                article[key.strip()] = value.strip()
 
     # process text into markdown
     md_text = markdown2.markdown(text)
