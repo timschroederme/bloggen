@@ -114,7 +114,7 @@ def parse_file(filepath):
                 article[key.strip()] = value.strip()
 
     # process text into markdown
-    md_text = markdown2.markdown(text)
+    md_text = markdown2.markdown(text, extras=["tables"])
     article["text"] = md_text
 
     # done
