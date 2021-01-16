@@ -68,7 +68,7 @@ def list_files(directory):
 
 
 # Parses post or page file to split metadata and text
-def parse_file(filepath):
+def parse_file(filepath, type="post"):
 
     # read text from file
     with open(filepath, "r") as file:
@@ -100,7 +100,7 @@ def parse_file(filepath):
     article = {"title": os.path.splitext(os.path.basename(filepath))[0],
                "date": "",
                "dateobj": None,
-               "type": "",
+               "type": type,
                "tags": [],
                "image": "",
                "first-menu": "",
@@ -142,7 +142,7 @@ site_config = read_site_config()
 posts = []
 posts_files = list_files(POSTS_PATH)
 for post in posts_files:
-    info = parse_file((POSTS_PATH+"/"+post))
+    info = parse_file(POSTS_PATH+"/"+post)
     info["url"] = sanitize(info["title"])
     info["abstract"] = info["text"].splitlines()[0]  # create abstract
     posts.append(info)
@@ -152,7 +152,7 @@ for post in posts_files:
 pages = []
 pages_files = list_files(PAGES_PATH)
 for page in pages_files:
-    info = parse_file((PAGES_PATH+"/"+page))
+    info = parse_file(PAGES_PATH+"/"+page, type="page")
     info["url"] = sanitize(info["title"])
     pages.append(info)
 pages = sorted(pages, key=lambda i: i['order'])
