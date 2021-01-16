@@ -164,8 +164,16 @@ os.mkdir(OUTPUT_PATH + "/assets")
 copytree(ASSET_PATH, OUTPUT_PATH + "/assets")
 os.mkdir(OUTPUT_PATH + "/images")
 copytree(IMAGE_PATH, OUTPUT_PATH + "/images")
-if os.path.exists("favicon.ico"):
-    shutil.copyfile("favicon.ico", OUTPUT_PATH + "/favicon.ico")
+icons = ['favicon.ico',
+         'site.webmanifest',
+         'favicon-32x32.png',
+         'favicon-16x16.png',
+         'apple-touch-icon.png',
+         'android-chrome-512x512.png',
+         'android-chrome-192x192.png']
+for icon in icons:
+    if os.path.exists(icon):
+        shutil.copyfile(icon, OUTPUT_PATH + "/" + icon)
 
 # Compose menu
 first_menu = []
