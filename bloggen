@@ -99,6 +99,7 @@ def parse_file(filepath):
     # process meta into array
     article = {"title": os.path.splitext(os.path.basename(filepath))[0],
                "date": "",
+               "dateobj": None,
                "type": "",
                "tags": [],
                "image": "",
@@ -112,6 +113,11 @@ def parse_file(filepath):
                     article[key.strip()].append({"title": t.strip(), "url": sanitize(t.strip())})
             else:
                 article[key.strip()] = value.strip()
+
+    # date processing
+    if not article["date"]:
+        article["date"] = datetime.date.today().strftime("%d.%m.%Y")
+    article["dateobj"] = datetime.datetime.strptime(article["date"], "%d.%m.%Y")
 
     # process text into markdown
     md_text = markdown2.markdown(text, extras=["tables"])
@@ -139,11 +145,8 @@ for post in posts_files:
     info = parse_file((POSTS_PATH+"/"+post))
     info["url"] = sanitize(info["title"])
     info["abstract"] = info["text"].splitlines()[0]  # create abstract
-    if not info["date"]:
-        info["date"] = datetime.date.today().strftime("%d.%m.%Y")
     posts.append(info)
-    posts = sorted(posts, key=lambda i: i['date'], reverse=True)
-
+    posts = sorted(posts, key=lambda i: i['dateobj'], reverse=True)
 
 # Read all pages
 pages = []
@@ -220,7 +223,6 @@ for page in pages:
     else:
         parsed = parse_template("templates/" + PAGE_TEMPLATE, variables)
     write_file(OUTPUT_PATH + "/" + page["url"] + ".html", parsed)
-
 
 # Render post pages
 for post in posts:
