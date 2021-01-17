@@ -121,6 +121,7 @@ def parse_file(filepath, type="post"):
 
     # process text into markdown
     md_text = markdown2.markdown(text, extras=["tables"])
+    md_text = md_text.replace("§ ", "§&nbsp;")
     article["text"] = md_text
 
     # done
